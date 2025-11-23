@@ -3,6 +3,7 @@
     <Project Path="src/RentCarServer.Application/RentCarServer.Application.csproj" Id="b138b563-8a22-4182-a629-6c3367f862d9" />
     <Project Path="src/RentCarServer.Domain/RentCarServer.Domain.csproj" Id="81e03f16-78c4-4f32-b19e-8771f6bc6f99" />
     <Project Path="src/RentCarServer.Infrastructure/RentCarServer.Infrastructure.csproj" Id="597330c6-3d85-4860-921c-7d9bd7af8790" />
+    <Project Path="src/RentCarServer.WebAPI/RentCarServer.WebAPI.csproj" Id="162c8416-dc98-407a-95fa-13fd784ce0d2" />
   </Folder>
   <Folder Name="/test/" />
 </Solution>

@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GenericRepository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentCarServer.Domain.Abstractions;
+using RentCarServer.Domain.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +13,29 @@ using System.Threading.Tasks;
 
 namespace RentCarServer.Infrastructure.Context
 {
-    internal sealed class ApplicationDbContext :DbContext
+    internal sealed class ApplicationDbContext :DbContext, IUnitOfWork
     {
+
+        public DbSet<User> Users { get; set; }
+
+
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             modelBuilder.ApplyGlobalFilters();
             base.OnModelCreating(modelBuilder);
+        }
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<IdentityId>().HaveConversion<IdentityIdValueConverter>();
+            configurationBuilder.Properties<decimal>().HaveColumnType("decimal(18,2)");
+            configurationBuilder.Properties<string>().HaveColumnType("varchar(MAX)");
+            base.ConfigureConventions(configurationBuilder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -74,5 +90,9 @@ namespace RentCarServer.Infrastructure.Context
 
             return base.SaveChangesAsync(cancellationToken);
         }
+    }
+    internal sealed class IdentityIdValueConverter : ValueConverter<IdentityId, Guid>
+    {
+        public IdentityIdValueConverter() : base(m => m.Value, m => new IdentityId(m)) { }
     }
 }

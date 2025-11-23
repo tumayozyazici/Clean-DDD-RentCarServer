@@ -10,18 +10,18 @@ using TS.MediatR;
 
 namespace RentCarServer.Application
 {
-    public static class RegistererService
+    public static class ServiceRegisterer
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         { 
             services.AddMediatR(cfg =>
             {
-                cfg.RegisterServicesFromAssembly(typeof(RegistererService).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(ServiceRegisterer).Assembly);
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
                 cfg.AddOpenBehavior(typeof(PermissionBehavior<,>));
             });
 
-            services.AddValidatorsFromAssembly(typeof(RegistererService).Assembly);
+            services.AddValidatorsFromAssembly(typeof(ServiceRegisterer).Assembly);
             return services; 
         }
     }
