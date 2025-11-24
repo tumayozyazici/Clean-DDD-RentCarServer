@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RentCarServer.Infrastructure.Context;
 using RentCarServer.Infrastructure.Options;
 using Scrutor;
@@ -19,8 +20,30 @@ namespace RentCarServer.Infrastructure
         {
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
             services.ConfigureOptions<JwtSetupOptions>();
+            services.Configure<MailSettingOptions>(configuration.GetSection("MailSettings"));
+
+            using var scoped = services.BuildServiceProvider().CreateScope();
+            var mailSettings = scoped.ServiceProvider.GetRequiredService<IOptions<MailSettingOptions>>();
+            if (string.IsNullOrEmpty(mailSettings.Value.UserId))
+            {
+                services.AddFluentEmail(mailSettings.Value.Email)
+                        .AddSmtpSender(
+                        mailSettings.Value.Smtp,
+                        mailSettings.Value.Port);
+            }
+            else
+            {
+                services.AddFluentEmail(mailSettings.Value.Email)
+                    .AddSmtpSender(
+                    mailSettings.Value.Smtp,
+                    mailSettings.Value.Port,
+                    mailSettings.Value.UserId,
+                    mailSettings.Value.Password);
+            }
+
             services.AddAuthentication().AddJwtBearer();
             services.AddAuthorization();
+
 
             string con = configuration.GetConnectionString("SqlServer")!;
             services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(con));
